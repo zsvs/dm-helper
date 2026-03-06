@@ -22,11 +22,11 @@ const (
 
 // Item represents a single item in the inventory
 type Item struct {
-	Name        string
-	quantity    int
-	abilities   *abilities.Abilities
-	condition   condition.Condition
-	description string
+	Name        string               `json:"name"`
+	Quantity    int                  `json:"quantity"`
+	Abilities   *abilities.Abilities `json:"abilities,omitempty"`
+	Condition   condition.Condition  `json:"condition"`
+	Description string               `json:"description"`
 }
 
 func (i *Item) SetName(name string) {
@@ -38,35 +38,35 @@ func (i *Item) GetName() string {
 }
 
 func (i *Item) SetQuantity(quantity int) {
-	i.quantity = quantity
+	i.Quantity = quantity
 }
 
 func (i *Item) GetQuantity() int {
-	return i.quantity
+	return i.Quantity
 }
 
 func (i *Item) SetAbilities(abs *abilities.Abilities) {
-	i.abilities = abs
+	i.Abilities = abs
 }
 
 func (i *Item) GetAbilities() *abilities.Abilities {
-	return i.abilities
+	return i.Abilities
 }
 
 func (i *Item) SetCondition(cond condition.Condition) {
-	i.condition = cond
+	i.Condition = cond
 }
 
 func (i *Item) GetCondition() condition.Condition {
-	return i.condition
+	return i.Condition
 }
 
 func (i *Item) SetDescription(description string) {
-	i.description = description
+	i.Description = description
 }
 
 func (i *Item) GetDescription() string {
-	return i.description
+	return i.Description
 }
 
 // Inventory represents a collection of items
@@ -105,10 +105,10 @@ func NewItem(name string, quantity int, abilities *abilities.Abilities, conditio
 
 	return Item{
 		Name:        name,
-		quantity:    quantity,
-		abilities:   abilities,
-		condition:   condition,
-		description: description,
+		Quantity:    quantity,
+		Abilities:   abilities,
+		Condition:   condition,
+		Description: description,
 	}, nil
 }
 
@@ -123,32 +123,32 @@ func NewInventory() *Inventory {
 func (inv *Inventory) AddItem(item Item) {
 	// Check if item with same name already exists
 	for i := range inv.Items {
-		if inv.Items[i].Name == item.Name && inv.Items[i].condition == item.condition {
+		if inv.Items[i].Name == item.Name && inv.Items[i].Condition == item.Condition {
 			// Stack items by adding quantities
-			inv.Items[i].quantity += item.quantity
-			log.Printf("Added %d of %s to existing stack. New quantity: %d", item.quantity, item.Name, inv.Items[i].quantity)
+			inv.Items[i].Quantity += item.Quantity
+			log.Printf("Added %d of %s to existing stack. New quantity: %d", item.Quantity, item.Name, inv.Items[i].Quantity)
 			return
 		}
 	}
 	// Add as new item
 	inv.Items = append(inv.Items, item)
-	log.Printf("Added new item: %s (quantity: %d)", item.Name, item.quantity)
+	log.Printf("Added new item: %s (quantity: %d)", item.Name, item.Quantity)
 }
 
 // RemoveItem removes a specific quantity of an item from inventory
 func (inv *Inventory) RemoveItem(name string, quantity int) error {
 	for i := range inv.Items {
 		if inv.Items[i].Name == name {
-			if inv.Items[i].quantity < quantity {
-				return fmt.Errorf("insufficient quantity: have %d, need %d", inv.Items[i].quantity, quantity)
+			if inv.Items[i].Quantity < quantity {
+				return fmt.Errorf("insufficient quantity: have %d, need %d", inv.Items[i].Quantity, quantity)
 			}
-			inv.Items[i].quantity -= quantity
-			if inv.Items[i].quantity == 0 {
+			inv.Items[i].Quantity -= quantity
+			if inv.Items[i].Quantity == 0 {
 				// Remove item from inventory if quantity reaches 0
 				inv.Items = append(inv.Items[:i], inv.Items[i+1:]...)
 				log.Printf("Removed %s from inventory (depleted)", name)
 			} else {
-				log.Printf("Removed %d of %s. Remaining: %d", quantity, name, inv.Items[i].quantity)
+				log.Printf("Removed %d of %s. Remaining: %d", quantity, name, inv.Items[i].Quantity)
 			}
 			return nil
 		}
@@ -174,7 +174,7 @@ func (inv *Inventory) GetAllItems() []Item {
 // HasItem checks if an item exists in the inventory with sufficient quantity
 func (inv *Inventory) HasItem(name string, quantity int) bool {
 	for _, item := range inv.Items {
-		if item.Name == name && item.quantity >= quantity {
+		if item.Name == name && item.Quantity >= quantity {
 			return true
 		}
 	}
@@ -226,7 +226,7 @@ func (inv *Inventory) ChangeItem(name string, fields []string, newVal any) *Item
 func (inv *Inventory) GetTotalWeight() int {
 	total := 0
 	for _, item := range inv.Items {
-		total += item.quantity
+		total += item.Quantity
 	}
 	return total
 }
@@ -241,7 +241,7 @@ func (inv *Inventory) String() string {
 	log.Printf("Inventory contains %d items", len(inv.Items))
 	result := "Inventory:\n"
 	for _, item := range inv.Items {
-		result += fmt.Sprintf("Name: %s, Quantity: %d, Condition: %s, Description: %s\n", item.Name, item.quantity, item.condition.String(), item.description)
+		result += fmt.Sprintf("Name: %s, Quantity: %d, Condition: %s, Description: %s\n", item.Name, item.Quantity, item.Condition.String(), item.Description)
 	}
 	result += fmt.Sprintf("Total weight: %d", inv.GetTotalWeight())
 	return result
